@@ -1,0 +1,22 @@
+server:
+  port: 8090
+spring:
+  datasource:
+    url: jdbc:postgresql://psqldb.shimunmatic.de/db_information_hub
+    username: information_hub
+    password: informationhub
+  liquibase:
+    change-log: classpath:db/db.changelog-master.xml
+    enabled: true
+    drop-first: false
+    default-schema: sc_information_hub
+    database-change-log-table: db_information_hub
+
+  logging:
+    level:
+      org.hibernate.engine.jdbc.env.internal.LobCreatorBuilderImpl: ERROR
+      com.shimunmatic.thundershare: TRACE
+information-hub:
+  corona:
+    api:
+      url: "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/%s.csv"

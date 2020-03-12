@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd">
+
+    <changeSet id="1" author="shimunmatic">
+        <createTable tableName="processed_date" schemaName="sc_information_hub">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="processed_date" type="date">
+                <constraints nullable="false"/>
+            </column>
+            <column name="processed_date_formatted" type="varchar(16)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="deleted" type="boolean"/>
+            <column name="date_created" type="timestamp" defaultValueComputed="now()"/>
+            <column name="date_updated" type="timestamp"/>
+            <column name="date_deleted" type="timestamp"/>
+        </createTable>
+
+
+        <createTable tableName="country_state" schemaName="sc_information_hub">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="country_name" type="varchar(64)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="state_name" type="varchar(64)"/>
+            <column name="last_updated" type="timestamp"/>
+            <column name="confirmed_cases" type="int"/>
+            <column name="death_cases" type="int"/>
+            <column name="recovered_cases" type="int"/>
+            <column name="latitude" type="decimal"/>
+            <column name="longitude" type="decimal"/>
+
+            <column name="processed_date_id" type="bigint">
+                <constraints foreignKeyName="FK_COUNTRY_STATE_PROCESSED_DATE" nullable="false"
+                             referencedTableName="processed_date" referencedColumnNames="id"/>
+            </column>
+
+            <column name="deleted" type="boolean"/>
+            <column name="date_created" type="timestamp" defaultValueComputed="now()"/>
+            <column name="date_updated" type="timestamp"/>
+            <column name="date_deleted" type="timestamp"/>
+        </createTable>
+
+        <comment>Added initial tables for corona virus country state per day</comment>
+    </changeSet>
+</databaseChangeLog>
