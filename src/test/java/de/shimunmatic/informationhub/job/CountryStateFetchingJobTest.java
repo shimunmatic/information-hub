@@ -17,7 +17,7 @@ class CountryStateFetchingJobTest {
     @Test
     @DisplayName("Test fetching parsing and saving new corona statistics for one date")
     void runForDate() {
-        countryStateFetchingJob.runForDate("02-02-2020");
+        countryStateFetchingJob.runForDate("03-12-2020");
     }
 
     @Test
