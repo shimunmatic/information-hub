@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = {"http://localhost:4200", "https://shimunmatic.de"})
 @RequestMapping("api/countrystate")
 public class CountryStateController {
     private CountryStateService countryStateService;
