@@ -6,6 +6,8 @@ import de.shimunmatic.informationhub.service.definition.ProcessedDateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class ProcessedDateServiceImpl extends AbstractService<ProcessedDate, Long> implements ProcessedDateService {
     private final ProcessedDateRepository repository;
@@ -17,7 +19,17 @@ public class ProcessedDateServiceImpl extends AbstractService<ProcessedDate, Lon
     }
 
     @Override
+    public List<ProcessedDate> getAll() {
+        return repository.findByOrderByProcessedDateDesc();
+    }
+
+    @Override
     public ProcessedDate getForFormattedProcessedDate(String processedDateFormatted) {
         return repository.findByProcessedDateFormattedEquals(processedDateFormatted);
+    }
+
+    @Override
+    public ProcessedDate getLastProcessedDate() {
+        return repository.findFirstByOrderByProcessedDateDesc();
     }
 }

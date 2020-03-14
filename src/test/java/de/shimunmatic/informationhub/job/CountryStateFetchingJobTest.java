@@ -21,6 +21,12 @@ class CountryStateFetchingJobTest {
     }
 
     @Test
+    @DisplayName("Test scheduled run job method")
+    void runJob() {
+        countryStateFetchingJob.runJob();
+    }
+
+    @Test
     @DisplayName("Test fetching parsing and saving new corona statistics for dates in batch")
     void runBatchForDates() {
         Arrays.stream(dates).forEach(d -> countryStateFetchingJob.runForDate(d));

@@ -32,4 +32,9 @@ public class CountryStateServiceImpl extends AbstractService<CountryState, Long>
     public List<CountryState> getAllForCountryOnDate(String countryName, Long processedDateId) {
         return repository.findByCountryNameEqualsAndProcessedDateIdEquals(countryName, processedDateId);
     }
+
+    @Override
+    public List<String> getListOfCountries() {
+        return repository.findDistinctCountryNames();
+    }
 }

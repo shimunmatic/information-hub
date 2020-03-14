@@ -11,6 +11,11 @@ spring:
     drop-first: false
     default-schema: sc_information_hub
     database-change-log-table: db_information_hub
+  jpa:
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
 
   logging:
     level:

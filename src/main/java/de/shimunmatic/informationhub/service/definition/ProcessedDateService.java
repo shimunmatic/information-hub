@@ -6,4 +6,5 @@ public interface ProcessedDateService extends CRUDService<ProcessedDate, Long> {
 
     ProcessedDate getForFormattedProcessedDate(String processedDateFormatted);
 
+    ProcessedDate getLastProcessedDate();
 }

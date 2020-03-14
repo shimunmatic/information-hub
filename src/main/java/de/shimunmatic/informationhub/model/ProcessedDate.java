@@ -17,7 +17,7 @@ import java.time.Instant;
 @Builder
 public class ProcessedDate extends BaseEntity {
     @Column(name = "processed_date")
-    private Instant date;
+    private Instant processedDate;
     @Column(name = "processed_date_formatted")
     private String processedDateFormatted;
 }

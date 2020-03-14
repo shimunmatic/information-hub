@@ -20,8 +20,10 @@ import org.springframework.web.client.RestTemplate;
 import java.io.Reader;
 import java.io.StringReader;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -48,8 +50,26 @@ public class CountryStateFetchingJob {
 
     @Scheduled(cron = "0 5 * * * *")
     public void runJob() {
-        String todayUTC = formatter.format(Instant.now());
-        runForDate(todayUTC);
+        ProcessedDate lastProcessedDate = processedDateService.getLastProcessedDate();
+        String[] datesToCheck = getDatesFromLast(lastProcessedDate);
+
+        for (String date : datesToCheck) {
+            runForDate(date);
+        }
+    }
+
+    @NotNull
+    private String[] getDatesFromLast(ProcessedDate lastProcessedDate) {
+        List<String> dates = new ArrayList<>();
+        Instant tempDate = Instant.from(lastProcessedDate.getProcessedDate());
+        tempDate = tempDate.plus(1, ChronoUnit.DAYS);
+
+        while (tempDate.isBefore(Instant.now())) {
+            dates.add(formatter.format(tempDate));
+            tempDate = tempDate.plus(1, ChronoUnit.DAYS);
+        }
+
+        return dates.toArray(new String[0]);
     }
 
     public void runForDate(String date) {
@@ -64,7 +84,7 @@ public class CountryStateFetchingJob {
             log.info("There were no results");
             return;
         }
-        ProcessedDate newProcessedDate = processedDateService.save(new ProcessedDate(Instant.now(), date));
+        ProcessedDate newProcessedDate = processedDateService.save(new ProcessedDate(Instant.from(LocalDate.from(formatter.parse(date)).atStartOfDay().atZone(ZoneId.of("UTC"))), date));
         results.forEach(cs -> cs.setProcessedDate(newProcessedDate));
 
         countryStateService.save(results);
