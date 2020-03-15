@@ -55,4 +55,13 @@ public class CountryStateController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
+    @RequestMapping(method = RequestMethod.GET, path = "country")
+    public ResponseEntity<List<String>> getCountryNames() {
+        try {
+            return ResponseEntity.ok(countryStateService.getListOfCountries());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 }
