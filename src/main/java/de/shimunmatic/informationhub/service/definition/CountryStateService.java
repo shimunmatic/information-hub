@@ -12,6 +12,8 @@ public interface CountryStateService extends CRUDService<CountryState, Long> {
 
     List<CountryState> getAllForCountryOnDate(String countryName, Long processedDateId);
 
+    List<CountryState> getAllForWorld();
+
     List<String> getListOfCountries();
 
 }

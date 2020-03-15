@@ -64,4 +64,13 @@ public class CountryStateController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
+    @RequestMapping(method = RequestMethod.GET, path = "world")
+    public ResponseEntity<List<CountryState>> getAllForWorld() {
+        try {
+            return ResponseEntity.ok(countryStateService.getAllForWorld());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 }
