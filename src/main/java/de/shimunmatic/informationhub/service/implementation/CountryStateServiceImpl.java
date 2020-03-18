@@ -26,7 +26,7 @@ public class CountryStateServiceImpl extends AbstractService<CountryState, Long>
         this.repository = repository;
     }
 
-    @Cacheable(cacheNames = "getAllForProcessedDate", unless = "#result == null || result.isEmpty()")
+    @Cacheable(cacheNames = "getAllForProcessedDate", unless = "#result == null || #result.isEmpty()")
     @Override
     public List<CountryState> getAllForProcessedDate(Long processedDateId) {
         return repository.findByProcessedDateIdEquals(processedDateId);
@@ -38,7 +38,7 @@ public class CountryStateServiceImpl extends AbstractService<CountryState, Long>
         return repository.findByCountryNameEquals(countryName);
     }
 
-    @Cacheable(cacheNames = "getAllForCountryOnDate", unless = "result == null || result.isEmpty()")
+    @Cacheable(cacheNames = "getAllForCountryOnDate", unless = "#result == null || #result.isEmpty()")
     @Override
     public List<CountryState> getAllForCountryOnDate(String countryName, Long processedDateId) {
         return repository.findByCountryNameEqualsAndProcessedDateIdEquals(countryName, processedDateId);
