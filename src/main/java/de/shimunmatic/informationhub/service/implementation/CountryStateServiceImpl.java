@@ -4,7 +4,10 @@ import de.shimunmatic.informationhub.model.CountryState;
 import de.shimunmatic.informationhub.model.ProcessedDate;
 import de.shimunmatic.informationhub.repository.CountryStateRepository;
 import de.shimunmatic.informationhub.service.definition.CountryStateService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -13,6 +16,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class CountryStateServiceImpl extends AbstractService<CountryState, Long> implements CountryStateService {
     private final CountryStateRepository repository;
 
@@ -22,21 +26,25 @@ public class CountryStateServiceImpl extends AbstractService<CountryState, Long>
         this.repository = repository;
     }
 
+    @Cacheable(cacheNames = "getAllForProcessedDate", unless = "#result == null || result.isEmpty()")
     @Override
     public List<CountryState> getAllForProcessedDate(Long processedDateId) {
         return repository.findByProcessedDateIdEquals(processedDateId);
     }
 
+    @Cacheable(cacheNames = "getAllForCountry")
     @Override
     public List<CountryState> getAllForCountry(String countryName) {
         return repository.findByCountryNameEquals(countryName);
     }
 
+    @Cacheable(cacheNames = "getAllForCountryOnDate", unless = "result == null || result.isEmpty()")
     @Override
     public List<CountryState> getAllForCountryOnDate(String countryName, Long processedDateId) {
         return repository.findByCountryNameEqualsAndProcessedDateIdEquals(countryName, processedDateId);
     }
 
+    @Cacheable(cacheNames = "getAllForWorld")
     @Override
     public List<CountryState> getAllForWorld() {
         List<CountryState> states = repository.findAll();
@@ -62,8 +70,15 @@ public class CountryStateServiceImpl extends AbstractService<CountryState, Long>
         return worldState;
     }
 
+    @Cacheable(cacheNames = "getListOfCountries")
     @Override
     public List<String> getListOfCountries() {
         return repository.findDistinctCountryNames();
+    }
+
+    @CacheEvict(cacheNames = {"getListOfCountries", "getAllForWorld", "getAllForCountry"})
+    @Override
+    public void evictCacheForDailyUpdate() {
+        log.info("Evicting cache for: getListOfCountries,getAllForWorld,getAllForCountry ");
     }
 }

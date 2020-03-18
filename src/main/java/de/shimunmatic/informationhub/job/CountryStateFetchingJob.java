@@ -88,6 +88,7 @@ public class CountryStateFetchingJob {
         results.forEach(cs -> cs.setProcessedDate(newProcessedDate));
 
         countryStateService.save(results);
+        countryStateService.evictCacheForDailyUpdate();
     }
 
 

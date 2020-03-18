@@ -16,4 +16,6 @@ public interface CountryStateService extends CRUDService<CountryState, Long> {
 
     List<String> getListOfCountries();
 
+    void evictCacheForDailyUpdate();
+
 }
