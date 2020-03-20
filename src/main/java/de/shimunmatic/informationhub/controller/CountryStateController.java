@@ -33,12 +33,12 @@ public class CountryStateController {
     }
 
     @RequestMapping(method = RequestMethod.GET, path = "all/{processedDateId}")
-    public ResponseEntity<List<CountryState>> getCountryAndDate(@PathVariable("processedDateId") Long processedDateId) {
+    public ResponseEntity<List<CountryState>> getAllForProcessedDate(@PathVariable("processedDateId") Long processedDateId) {
         try {
-            log.info("getCountryAndDate: processedDateId {}", processedDateId);
+            log.info("getAllForProcessedDate: processedDateId {}", processedDateId);
             return ResponseEntity.ok(countryStateService.getAllForProcessedDate(processedDateId));
         } catch (Exception e) {
-            log.error("Error getCountryAndDate: processedDateId {}", processedDateId, e);
+            log.error("Error getAllForProcessedDate: processedDateId {}", processedDateId, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -83,6 +83,17 @@ public class CountryStateController {
             return ResponseEntity.ok(countryStateService.getAllForWorld());
         } catch (Exception e) {
             log.error("Error getAllForWorld", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @RequestMapping(method = RequestMethod.GET, path = "world/{processedDateId}")
+    public ResponseEntity<CountryState> getAllForWorldOnProcessedDate(@PathVariable("processedDateId") Long processedDateId) {
+        try {
+            log.info("getAllForWorldOnProcessedDate: processedDateId {}", processedDateId);
+            return ResponseEntity.ok(countryStateService.getAllForWorldOnDate(processedDateId));
+        } catch (Exception e) {
+            log.error("Error getAllForWorldOnProcessedDate: processedDateId {}", processedDateId, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }

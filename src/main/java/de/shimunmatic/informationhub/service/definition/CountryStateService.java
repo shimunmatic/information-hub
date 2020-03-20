@@ -18,4 +18,5 @@ public interface CountryStateService extends CRUDService<CountryState, Long> {
 
     void evictCacheForDailyUpdate();
 
+    CountryState getAllForWorldOnDate(Long processedDateId);
 }

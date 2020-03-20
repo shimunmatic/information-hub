@@ -4,6 +4,7 @@ import de.shimunmatic.informationhub.model.CountryState;
 import de.shimunmatic.informationhub.model.ProcessedDate;
 import de.shimunmatic.informationhub.repository.CountryStateRepository;
 import de.shimunmatic.informationhub.service.definition.CountryStateService;
+import de.shimunmatic.informationhub.service.definition.ProcessedDateService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -13,17 +14,20 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 @Slf4j
 public class CountryStateServiceImpl extends AbstractService<CountryState, Long> implements CountryStateService {
     private final CountryStateRepository repository;
+    private final ProcessedDateService processedDateService;
 
     @Autowired
-    public CountryStateServiceImpl(CountryStateRepository repository) {
+    public CountryStateServiceImpl(CountryStateRepository repository, ProcessedDateService processedDateService) {
         super(repository);
         this.repository = repository;
+        this.processedDateService = processedDateService;
     }
 
     @Cacheable(cacheNames = "getAllForProcessedDate", unless = "#result == null || #result.isEmpty()")
@@ -80,5 +84,33 @@ public class CountryStateServiceImpl extends AbstractService<CountryState, Long>
     @Override
     public void evictCacheForDailyUpdate() {
         log.info("Evicting cache for: getListOfCountries,getAllForWorld,getAllForCountry ");
+    }
+
+    @Cacheable(cacheNames = "getAllForWorldOnDate", unless = "#result == null")
+    @Override
+    public CountryState getAllForWorldOnDate(Long processedDateId) {
+        List<CountryState> states = repository.findByProcessedDateIdEquals(processedDateId);
+        Optional<ProcessedDate> oDate = processedDateService.getById(processedDateId);
+        if (oDate.isEmpty()) return null;
+        return getStateFromStatesAndDate("World", oDate.get(), states);
+
+    }
+
+    private CountryState getStateFromStatesAndDate(String name, ProcessedDate processedDate, List<CountryState> states) {
+        int confirmed = 0, deaths = 0, recovered = 0;
+        for (CountryState countryState : states) {
+            confirmed += countryState.getConfirmedCases();
+            deaths += countryState.getDeathCases();
+            recovered += countryState.getRecoveredCases();
+        }
+        return CountryState.builder()
+                .countryName(name)
+                .processedDate(processedDate)
+                .deathCases(deaths)
+                .confirmedCases(confirmed)
+                .recoveredCases(recovered)
+                .lastUpdated(processedDate.getProcessedDate())
+                .build();
+
     }
 }
