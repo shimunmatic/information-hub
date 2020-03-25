@@ -16,12 +16,17 @@ spring:
       hibernate:
         jdbc:
           time_zone: UTC
-
+          batch_size: 50
+        order_inserts: true
+        generate_statistics: true
   logging:
     level:
       org.hibernate.engine.jdbc.env.internal.LobCreatorBuilderImpl: ERROR
       com.shimunmatic.thundershare: TRACE
+    file: /var/log/information-hub.log
 information-hub:
   corona:
     api:
       url: "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/%s.csv"
+logging:
+  file: /var/log/information-hub.log

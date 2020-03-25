@@ -1,33 +1,57 @@
 package de.shimunmatic.informationhub.service.implementation;
 
+import com.sun.istack.NotNull;
 import de.shimunmatic.informationhub.model.CountryState;
 import de.shimunmatic.informationhub.model.ProcessedDate;
+import de.shimunmatic.informationhub.parser.countrystate.CountryStateCSVParserFactory;
+import de.shimunmatic.informationhub.parser.countrystate.definition.CountryStateCSVParser;
 import de.shimunmatic.informationhub.repository.CountryStateRepository;
 import de.shimunmatic.informationhub.service.definition.CountryStateService;
 import de.shimunmatic.informationhub.service.definition.ProcessedDateService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.io.Reader;
+import java.io.StringReader;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 @Slf4j
 public class CountryStateServiceImpl extends AbstractService<CountryState, Long> implements CountryStateService {
+    private final String apiUrl;
+    private final RestTemplate template;
     private final CountryStateRepository repository;
     private final ProcessedDateService processedDateService;
+    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM-dd-yyyy")
+            .withLocale(Locale.getDefault()).withZone(ZoneId.of("UTC"));
+    private static final DateTimeFormatter utcFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
+            .withLocale(Locale.getDefault()).withZone(ZoneId.of("UTC"));
+    private CountryStateCSVParserFactory countryStateCSVParserFactory;
 
     @Autowired
-    public CountryStateServiceImpl(CountryStateRepository repository, ProcessedDateService processedDateService) {
+    public CountryStateServiceImpl(CountryStateRepository repository, @Value("${information-hub.corona.api.url}") String apiUrl, RestTemplate template, ProcessedDateService processedDateService, CountryStateCSVParserFactory countryStateCSVParserFactory) {
         super(repository);
+        this.apiUrl = apiUrl;
+        this.template = template;
         this.repository = repository;
         this.processedDateService = processedDateService;
+        this.countryStateCSVParserFactory = countryStateCSVParserFactory;
     }
 
     @Cacheable(cacheNames = "getAllForProcessedDate", unless = "#result == null || #result.isEmpty()")
@@ -80,6 +104,16 @@ public class CountryStateServiceImpl extends AbstractService<CountryState, Long>
         return repository.findDistinctCountryNames();
     }
 
+    @Override
+    public void fetchNewStatistic() {
+        ProcessedDate lastProcessedDate = processedDateService.getLastProcessedDate();
+        String[] datesToCheck = getDatesFromLast(lastProcessedDate);
+
+        for (String date : datesToCheck) {
+            runForDate(date);
+        }
+    }
+
     @CacheEvict(cacheNames = {"getListOfCountries", "getAllForWorld", "getAllForCountry"})
     @Override
     public void evictCacheForDailyUpdate() {
@@ -112,5 +146,94 @@ public class CountryStateServiceImpl extends AbstractService<CountryState, Long>
                 .lastUpdated(processedDate.getProcessedDate())
                 .build();
 
+    }
+
+    @NotNull
+    private String[] getDatesFromLast(ProcessedDate lastProcessedDate) {
+        List<String> dates = new ArrayList<>();
+        Instant tempDate = Instant.from(lastProcessedDate.getProcessedDate());
+        tempDate = tempDate.plus(1, ChronoUnit.DAYS);
+
+        while (tempDate.isBefore(Instant.now())) {
+            dates.add(formatter.format(tempDate));
+            tempDate = tempDate.plus(1, ChronoUnit.DAYS);
+        }
+
+        return dates.toArray(new String[0]);
+    }
+
+    private void runForDate(String date) {
+        ProcessedDate processedDate = processedDateService.getForFormattedProcessedDate(date);
+        if (processedDate != null) {
+            log.info("Up to date!");
+            return;
+        }
+
+        List<CountryState> results = fetchForDate(date);
+        if (results == null || results.isEmpty()) {
+            log.info("There were no results");
+            return;
+        }
+        ProcessedDate newProcessedDate = processedDateService.save(new ProcessedDate(Instant.from(LocalDate.from(formatter.parse(date)).atStartOfDay().atZone(ZoneId.of("UTC"))), date));
+        results.forEach(cs -> cs.setProcessedDate(newProcessedDate));
+
+        save(results);
+        evictCacheForDailyUpdate();
+    }
+
+
+    private List<CountryState> fetchForDate(@NotNull String date) {
+        log.info("Fetching for Date {}", date);
+        String url = String.format(apiUrl, date);
+        try {
+            log.info("Using url: {}", url);
+            ResponseEntity<String> response = template.getForEntity(url, String.class);
+            if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
+                return parseCountryStates(response.getBody());
+            }
+            log.warn("Error fetching for date: {}, status code: {}", date, response.getStatusCode());
+        } catch (Exception e) {
+            log.error("Error while fetching data.", e);
+        }
+        return null;
+    }
+
+    private List<CountryState> parseCountryStates(@NotNull String csv) {
+        List<CountryState> states = new ArrayList<>();
+        try {
+            Reader in = new StringReader(csv);
+            CSVParser parser = new CSVParser(in, CSVFormat.EXCEL);
+            List<CSVRecord> list = parser.getRecords();
+            boolean first = true;
+            for (CSVRecord csvRecord : list) {
+                if (first) {
+                    first = false;
+                    continue;
+                }
+                states.add(getFromRecord(csvRecord));
+            }
+
+        } catch (Exception e) {
+            log.error("Error parsing csv: \n{}", csv, e);
+        }
+        return states;
+    }
+
+    private CountryState getFromRecord(CSVRecord record) throws Exception {
+        CountryState state = null;
+
+        for (CountryStateCSVParser parser : countryStateCSVParserFactory.getParsers()) {
+            try {
+                state = parser.parse(record);
+                break;
+            } catch (Exception e) {
+                log.error("Error while parsing, trying different parser! record:{}, parser Version: {}", record, parser.getVersion(), e);
+            }
+        }
+        if (state == null) {
+            throw new Exception("All parsers returned error");
+        }
+
+        return state;
     }
 }
