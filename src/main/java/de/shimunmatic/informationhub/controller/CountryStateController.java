@@ -2,6 +2,9 @@ package de.shimunmatic.informationhub.controller;
 
 import de.shimunmatic.informationhub.model.CountryState;
 import de.shimunmatic.informationhub.service.definition.CountryStateService;
+import io.swagger.v3.oas.annotations.ExternalDocumentation;
+import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -94,6 +97,18 @@ public class CountryStateController {
             return ResponseEntity.ok(countryStateService.getAllForWorldOnDate(processedDateId));
         } catch (Exception e) {
             log.error("Error getAllForWorldOnProcessedDate: processedDateId {}", processedDateId, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @Hidden
+    @RequestMapping(method = RequestMethod.GET, path = "evictcache")
+    public ResponseEntity forceEvictCache() {
+        try {
+            log.info("forceEvictCache");
+            countryStateService.evictCacheForDailyUpdate();
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }

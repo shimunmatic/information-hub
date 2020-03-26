@@ -57,24 +57,28 @@ public class CountryStateServiceImpl extends AbstractService<CountryState, Long>
     @Cacheable(cacheNames = "getAllForProcessedDate", unless = "#result == null || #result.isEmpty()")
     @Override
     public List<CountryState> getAllForProcessedDate(Long processedDateId) {
+        log.info("Not using cache...getAllForProcessedDate");
         return repository.findByProcessedDateIdEquals(processedDateId);
     }
 
     @Cacheable(cacheNames = "getAllForCountry")
     @Override
     public List<CountryState> getAllForCountry(String countryName) {
+        log.info("Not using cache...getAllForCountry");
         return repository.findByCountryNameEquals(countryName);
     }
 
     @Cacheable(cacheNames = "getAllForCountryOnDate", unless = "#result == null || #result.isEmpty()")
     @Override
     public List<CountryState> getAllForCountryOnDate(String countryName, Long processedDateId) {
+        log.info("Not using cache...getAllForCountryOnDate");
         return repository.findByCountryNameEqualsAndProcessedDateIdEquals(countryName, processedDateId);
     }
 
     @Cacheable(cacheNames = "getAllForWorld")
     @Override
     public List<CountryState> getAllForWorld() {
+        log.info("Not using cache...getAllForWorld");
         List<CountryState> states = repository.findAll();
         Map<ProcessedDate, List<CountryState>> mapped = states.stream().collect(Collectors.groupingBy(CountryState::getProcessedDate));
         List<CountryState> worldState = new ArrayList<>();
@@ -101,6 +105,7 @@ public class CountryStateServiceImpl extends AbstractService<CountryState, Long>
     @Cacheable(cacheNames = "getListOfCountries")
     @Override
     public List<String> getListOfCountries() {
+        log.info("Not using cache...getListOfCountries");
         return repository.findDistinctCountryNames();
     }
 
@@ -123,6 +128,7 @@ public class CountryStateServiceImpl extends AbstractService<CountryState, Long>
     @Cacheable(cacheNames = "getAllForWorldOnDate", unless = "#result == null")
     @Override
     public CountryState getAllForWorldOnDate(Long processedDateId) {
+        log.info("Not using cache...getAllForWorldOnDate");
         List<CountryState> states = repository.findByProcessedDateIdEquals(processedDateId);
         Optional<ProcessedDate> oDate = processedDateService.getById(processedDateId);
         if (oDate.isEmpty()) return null;
