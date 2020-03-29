@@ -1,0 +1,203 @@
+@startuml
+
+title __INFORMATION-HUB's Class Diagram__\n
+
+  namespace de.shimunmatic.informationhub {
+    class de.shimunmatic.informationhub.InformationHubApplication {
+    }
+  }
+  
+
+  namespace de.shimunmatic.informationhub {
+    namespace configuration {
+      class de.shimunmatic.informationhub.configuration.OpenApiConfiguration {
+      }
+    }
+  }
+  
+
+  namespace de.shimunmatic.informationhub {
+    namespace configuration {
+      class de.shimunmatic.informationhub.configuration.RestTemplateConfiguration {
+      }
+    }
+  }
+  
+
+  namespace de.shimunmatic.informationhub {
+    namespace controller {
+      class de.shimunmatic.informationhub.controller.CountryStateController {
+      }
+    }
+  }
+  
+
+  namespace de.shimunmatic.informationhub {
+    namespace controller {
+      class de.shimunmatic.informationhub.controller.ProcessedDateController {
+      }
+    }
+  }
+  
+
+  namespace de.shimunmatic.informationhub {
+    namespace job {
+      class de.shimunmatic.informationhub.job.CountryStateFetchingJob {
+      }
+    }
+  }
+  
+
+  namespace de.shimunmatic.informationhub {
+    namespace model {
+      class de.shimunmatic.informationhub.model.BaseEntity {
+      }
+    }
+  }
+  
+
+  namespace de.shimunmatic.informationhub {
+    namespace model {
+      class de.shimunmatic.informationhub.model.CountryState {
+      }
+    }
+  }
+  
+
+  namespace de.shimunmatic.informationhub {
+    namespace model {
+      class de.shimunmatic.informationhub.model.ProcessedDate {
+      }
+    }
+  }
+  
+
+  namespace de.shimunmatic.informationhub {
+    namespace parser.countrystate {
+      class de.shimunmatic.informationhub.parser.countrystate.CountryStateCSVParserFactory {
+      }
+    }
+  }
+  
+
+  namespace de.shimunmatic.informationhub {
+    namespace parser.countrystate {
+      namespace definition {
+        interface de.shimunmatic.informationhub.parser.countrystate.definition.CountryStateCSVParser {
+        }
+      }
+    }
+  }
+  
+
+  namespace de.shimunmatic.informationhub {
+    namespace parser.countrystate {
+      namespace implementation {
+        class de.shimunmatic.informationhub.parser.countrystate.implementation.CountryStateCSVParserV1 {
+        }
+      }
+    }
+  }
+  
+
+  namespace de.shimunmatic.informationhub {
+    namespace parser.countrystate {
+      namespace implementation {
+        class de.shimunmatic.informationhub.parser.countrystate.implementation.CountryStateCSVParserV2 {
+        }
+      }
+    }
+  }
+  
+
+  namespace de.shimunmatic.informationhub {
+    namespace repository {
+      interface de.shimunmatic.informationhub.repository.CountryStateRepository {
+      }
+    }
+  }
+  
+
+  namespace de.shimunmatic.informationhub {
+    namespace repository {
+      interface de.shimunmatic.informationhub.repository.ProcessedDateRepository {
+      }
+    }
+  }
+  
+
+  namespace de.shimunmatic.informationhub {
+    namespace service.definition {
+      interface de.shimunmatic.informationhub.service.definition.CRUDService {
+      }
+    }
+  }
+  
+
+  namespace de.shimunmatic.informationhub {
+    namespace service.definition {
+      interface de.shimunmatic.informationhub.service.definition.CountryStateService {
+      }
+    }
+  }
+  
+
+  namespace de.shimunmatic.informationhub {
+    namespace service.definition {
+      interface de.shimunmatic.informationhub.service.definition.ProcessedDateService {
+      }
+    }
+  }
+  
+
+  namespace de.shimunmatic.informationhub {
+    namespace service.implementation {
+      class de.shimunmatic.informationhub.service.implementation.AbstractService {
+      }
+    }
+  }
+  
+
+  namespace de.shimunmatic.informationhub {
+    namespace service.implementation {
+      class de.shimunmatic.informationhub.service.implementation.CountryStateServiceImpl {
+      }
+    }
+  }
+  
+
+  namespace de.shimunmatic.informationhub {
+    namespace service.implementation {
+      class de.shimunmatic.informationhub.service.implementation.ProcessedDateServiceImpl {
+      }
+    }
+  }
+  
+
+  de.shimunmatic.informationhub.controller.CountryStateController o-- de.shimunmatic.informationhub.service.definition.CountryStateService : countryStateService
+  de.shimunmatic.informationhub.controller.ProcessedDateController o-- de.shimunmatic.informationhub.service.definition.ProcessedDateService : processedDateService
+  de.shimunmatic.informationhub.job.CountryStateFetchingJob o-- de.shimunmatic.informationhub.service.definition.CountryStateService : countryStateService
+  de.shimunmatic.informationhub.model.CountryState -up-|> de.shimunmatic.informationhub.model.BaseEntity
+  de.shimunmatic.informationhub.model.CountryState o-- de.shimunmatic.informationhub.model.ProcessedDate : processedDate
+  de.shimunmatic.informationhub.model.ProcessedDate -up-|> de.shimunmatic.informationhub.model.BaseEntity
+  de.shimunmatic.informationhub.parser.countrystate.implementation.CountryStateCSVParserV1 .up.|> de.shimunmatic.informationhub.parser.countrystate.definition.CountryStateCSVParser
+  de.shimunmatic.informationhub.parser.countrystate.implementation.CountryStateCSVParserV2 .up.|> de.shimunmatic.informationhub.parser.countrystate.definition.CountryStateCSVParser
+  de.shimunmatic.informationhub.service.implementation.AbstractService .up.|> de.shimunmatic.informationhub.service.definition.CRUDService
+  de.shimunmatic.informationhub.service.implementation.CountryStateServiceImpl .up.|> de.shimunmatic.informationhub.service.definition.CountryStateService
+  de.shimunmatic.informationhub.service.implementation.CountryStateServiceImpl -up-|> de.shimunmatic.informationhub.service.implementation.AbstractService
+  de.shimunmatic.informationhub.service.implementation.CountryStateServiceImpl o-- de.shimunmatic.informationhub.parser.countrystate.CountryStateCSVParserFactory : countryStateCSVParserFactory
+  de.shimunmatic.informationhub.service.implementation.CountryStateServiceImpl o-- de.shimunmatic.informationhub.service.definition.ProcessedDateService : processedDateService
+  de.shimunmatic.informationhub.service.implementation.CountryStateServiceImpl o-- de.shimunmatic.informationhub.repository.CountryStateRepository : repository
+  de.shimunmatic.informationhub.service.implementation.ProcessedDateServiceImpl .up.|> de.shimunmatic.informationhub.service.definition.ProcessedDateService
+  de.shimunmatic.informationhub.service.implementation.ProcessedDateServiceImpl -up-|> de.shimunmatic.informationhub.service.implementation.AbstractService
+  de.shimunmatic.informationhub.service.implementation.ProcessedDateServiceImpl o-- de.shimunmatic.informationhub.repository.ProcessedDateRepository : repository
+
+
+right footer
+
+
+PlantUML diagram generated by SketchIt! (https://bitbucket.org/pmesmeur/sketch.it)
+For more information about this tool, please contact philippe.mesmeur@gmail.com
+endfooter
+
+@enduml
