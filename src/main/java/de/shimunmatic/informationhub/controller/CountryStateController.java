@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.CacheManager;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +19,7 @@ import java.util.List;
 @CrossOrigin(origins = {"http://localhost:4200", "https://shimunmatic.de"})
 @RequestMapping("api/countrystate")
 public class CountryStateController {
-    private CountryStateService countryStateService;
+    private final CountryStateService countryStateService;
 
     @Autowired
     public CountryStateController(CountryStateService countryStateService) {

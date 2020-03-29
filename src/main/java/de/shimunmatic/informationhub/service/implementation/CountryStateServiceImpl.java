@@ -14,6 +14,7 @@ import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
@@ -38,6 +39,7 @@ public class CountryStateServiceImpl extends AbstractService<CountryState, Long>
     private final RestTemplate template;
     private final CountryStateRepository repository;
     private final ProcessedDateService processedDateService;
+    private final CacheManager cacheManager;
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM-dd-yyyy")
             .withLocale(Locale.getDefault()).withZone(ZoneId.of("UTC"));
     private static final DateTimeFormatter utcFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
@@ -45,13 +47,14 @@ public class CountryStateServiceImpl extends AbstractService<CountryState, Long>
     private CountryStateCSVParserFactory countryStateCSVParserFactory;
 
     @Autowired
-    public CountryStateServiceImpl(CountryStateRepository repository, @Value("${information-hub.corona.api.url}") String apiUrl, RestTemplate template, ProcessedDateService processedDateService, CountryStateCSVParserFactory countryStateCSVParserFactory) {
+    public CountryStateServiceImpl(CountryStateRepository repository, @Value("${information-hub.corona.api.url}") String apiUrl, RestTemplate template, ProcessedDateService processedDateService, CountryStateCSVParserFactory countryStateCSVParserFactory, CacheManager cacheManager) {
         super(repository);
         this.apiUrl = apiUrl;
         this.template = template;
         this.repository = repository;
         this.processedDateService = processedDateService;
         this.countryStateCSVParserFactory = countryStateCSVParserFactory;
+        this.cacheManager = cacheManager;
     }
 
     @Cacheable(cacheNames = "getAllForProcessedDate", unless = "#result == null || #result.isEmpty()")
@@ -119,10 +122,14 @@ public class CountryStateServiceImpl extends AbstractService<CountryState, Long>
         }
     }
 
-    @CacheEvict(cacheNames = {"getListOfCountries", "getAllForWorld", "getAllForCountry"})
+    @CacheEvict(cacheNames = {"getListOfCountries", "getAllForWorld", "getAllForCountry"}, allEntries = true)
     @Override
     public void evictCacheForDailyUpdate() {
         log.info("Evicting cache for: getListOfCountries,getAllForWorld,getAllForCountry ");
+        cacheManager.getCache("getListOfCountries").clear();
+        cacheManager.getCache("getAllForWorld").clear();
+        cacheManager.getCache("getAllForCountry").clear();
+
     }
 
     @Cacheable(cacheNames = "getAllForWorldOnDate", unless = "#result == null")
