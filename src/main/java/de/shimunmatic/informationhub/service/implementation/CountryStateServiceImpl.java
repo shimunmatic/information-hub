@@ -149,7 +149,6 @@ public class CountryStateServiceImpl extends AbstractService<CountryState, Long>
 
     }
 
-    @CacheEvict()
     @Override
     public void evictAllCache() {
         log.info("Evicting all cache");
