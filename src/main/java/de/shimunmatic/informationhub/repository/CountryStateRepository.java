@@ -18,4 +18,6 @@ public interface CountryStateRepository extends JpaRepository<CountryState, Long
 
     @Query("SELECT DISTINCT cs.countryName FROM CountryState cs")
     List<String> findDistinctCountryNames();
+
+    void deleteByProcessedDateIdEquals(Long processedDateId);
 }

@@ -132,6 +132,12 @@ public class CountryStateServiceImpl extends AbstractService<CountryState, Long>
 
     }
 
+    @Override
+    public void deleteAllForProcessedDateId(Long processedDateId) {
+        log.info("Deleting all for processedDateId {}", processedDateId);
+        repository.deleteByProcessedDateIdEquals(processedDateId);
+    }
+
     @Cacheable(cacheNames = "getAllForWorldOnDate", unless = "#result == null")
     @Override
     public CountryState getAllForWorldOnDate(Long processedDateId) {
@@ -141,6 +147,13 @@ public class CountryStateServiceImpl extends AbstractService<CountryState, Long>
         if (oDate.isEmpty()) return null;
         return getStateFromStatesAndDate("World", oDate.get(), states);
 
+    }
+
+    @CacheEvict()
+    @Override
+    public void evictAllCache() {
+        log.info("Evicting all cache");
+        cacheManager.getCacheNames().forEach(name -> cacheManager.getCache(name).clear());
     }
 
     private CountryState getStateFromStatesAndDate(String name, ProcessedDate processedDate, List<CountryState> states) {

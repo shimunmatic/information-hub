@@ -18,4 +18,6 @@ public interface CRUDService<T, U> {
     void delete(T entity);
 
     void deleteById(U id);
+
+    void deleteAll(Iterable<T> entities);
 }

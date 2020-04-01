@@ -101,16 +101,4 @@ public class CountryStateController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
-
-    @Hidden
-    @RequestMapping(method = RequestMethod.GET, path = "evictcache")
-    public ResponseEntity forceEvictCache() {
-        try {
-            log.info("forceEvictCache");
-            countryStateService.evictCacheForDailyUpdate();
-            return ResponseEntity.ok().build();
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
 }

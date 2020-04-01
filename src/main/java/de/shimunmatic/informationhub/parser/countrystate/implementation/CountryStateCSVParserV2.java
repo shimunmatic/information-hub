@@ -28,12 +28,32 @@ public class CountryStateCSVParserV2 implements CountryStateCSVParser {
         log.info("Parsing record: {}", record);
         builder
                 .stateName(record.get(2))
-                .countryName(record.get(3))
-                .latitude(Double.parseDouble(record.get(5)))
-                .longitude(Double.parseDouble(record.get(6)))
-                .confirmedCases(Integer.parseInt(record.get(7)))
-                .deathCases(Integer.parseInt(record.get(8)))
-                .recoveredCases(Integer.parseInt(record.get(9)));
+                .countryName(record.get(3));
+        try{
+            builder.latitude(Double.parseDouble(record.get(5)));
+        }catch (Exception e){
+            log.error("Error while parsing latitude: {}",record.get(5),e);
+        }
+        try{
+            builder.longitude(Double.parseDouble(record.get(6)));
+        }catch (Exception e){
+            log.error("Error while parsing longitude: {}",record.get(6),e);
+        }
+        try{
+            builder.confirmedCases(Integer.parseInt(record.get(7)));
+        }catch (Exception e){
+            log.error("Error while parsing confirmedCases: {}",record.get(7),e);
+        }
+        try{
+            builder.deathCases(Integer.parseInt(record.get(8)));
+        }catch (Exception e){
+            log.error("Error while parsing deathCases: {}",record.get(8),e);
+        }
+        try{
+            builder.recoveredCases(Integer.parseInt(record.get(9)));
+        }catch (Exception e){
+            log.error("Error while parsing recoveredCases: {}",record.get(9),e);
+        }
         try {
             builder.lastUpdated(Instant.from(utcFormatter.parse(record.get(4))));
         } catch (Exception e) {

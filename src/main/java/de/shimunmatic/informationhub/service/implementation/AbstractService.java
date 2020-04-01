@@ -1,4 +1,5 @@
 package de.shimunmatic.informationhub.service.implementation;
+
 import de.shimunmatic.informationhub.service.definition.CRUDService;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -45,5 +46,10 @@ public class AbstractService<T, U> implements CRUDService<T, U> {
     @Override
     public void deleteById(U id) {
         repository.deleteById(id);
+    }
+
+    @Override
+    public void deleteAll(Iterable<T> entities) {
+        repository.deleteAll(entities);
     }
 }
