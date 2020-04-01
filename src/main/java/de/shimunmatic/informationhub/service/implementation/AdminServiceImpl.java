@@ -7,6 +7,8 @@ import de.shimunmatic.informationhub.service.definition.ProcessedDateService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
+
 @Service
 @Slf4j
 public class AdminServiceImpl implements AdminService {
@@ -18,11 +20,13 @@ public class AdminServiceImpl implements AdminService {
         this.processedDateService = processedDateService;
     }
 
+    @Transactional
     @Override
     public boolean deleteAllForProcessedDate(String dateFormatted) {
         ProcessedDate processedDate = processedDateService.getForFormattedProcessedDate(dateFormatted);
         if (processedDate != null) {
             countryStateService.deleteAllForProcessedDateId(processedDate.getId());
+            processedDateService.deleteById(processedDate.getId());
             return true;
         }
         return false;
