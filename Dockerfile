@@ -1,4 +1,7 @@
 FROM openjdk:11.0.6-jdk
-ARG JAR_FILE=target/*.jar
-COPY ${JAR_FILE} app.jar
-ENTRYPOINT ["java","-jar","/app.jar"]
+MAINTAINER Shimun Matic <shimun.matic@gmail.com>
+
+ARG JAR_FILE=*.jar
+ADD target/${JAR_FILE} /usr/share/information-hub/app.jar
+
+ENTRYPOINT ["java","-jar","/usr/share/information-hub/app.jar"]
