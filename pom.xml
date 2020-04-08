@@ -151,11 +151,4 @@
             <url>https://repo.spring.io/milestone</url>
         </pluginRepository>
     </pluginRepositories>
-    <distributionManagement>
-        <repository>
-            <id>github</id>
-            <name>GitHub shimunmatic Apache Maven Packages</name>
-            <url>https://maven.pkg.github.com/shimunmatic/mvn-repo</url>
-        </repository>
-    </distributionManagement>
 </project>
