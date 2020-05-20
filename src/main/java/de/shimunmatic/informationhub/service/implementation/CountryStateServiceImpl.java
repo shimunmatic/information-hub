@@ -69,7 +69,7 @@ public class CountryStateServiceImpl extends AbstractService<CountryState, Long>
     public List<CountryState> getAllForCountry(String countryName) {
         log.info("Not using cache...getAllForCountry");
         List<CountryState> statesFetched = repository.findByCountryNameEquals(countryName);
-        Map<ProcessedDate, List<CountryState>> mapPerProcessedDate = statesFetched.stream().collect(Collectors.toMap(CountryState::getProcessedDate, Arrays::asList));
+        Map<ProcessedDate, List<CountryState>> mapPerProcessedDate = statesFetched.stream().collect(Collectors.groupingBy(CountryState::getProcessedDate, Collectors.toList()));
         List<CountryState> collectedCountryStates = new ArrayList<>();
         mapPerProcessedDate.forEach((key, value) -> collectedCountryStates.add(getStateFromStatesAndDate(countryName, key, value)));
         return collectedCountryStates;
