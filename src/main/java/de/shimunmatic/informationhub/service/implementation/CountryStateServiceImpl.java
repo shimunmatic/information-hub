@@ -68,7 +68,11 @@ public class CountryStateServiceImpl extends AbstractService<CountryState, Long>
     @Override
     public List<CountryState> getAllForCountry(String countryName) {
         log.info("Not using cache...getAllForCountry");
-        return repository.findByCountryNameEquals(countryName);
+        List<CountryState> statesFetched = repository.findByCountryNameEquals(countryName);
+        Map<ProcessedDate, List<CountryState>> mapPerProcessedDate = statesFetched.stream().collect(Collectors.toMap(CountryState::getProcessedDate, Arrays::asList));
+        List<CountryState> collectedCountryStates = new ArrayList<>();
+        mapPerProcessedDate.forEach((key, value) -> collectedCountryStates.add(getStateFromStatesAndDate(countryName, key, value)));
+        return collectedCountryStates;
     }
 
     @Cacheable(cacheNames = "getAllForCountryOnDate", unless = "#result == null || #result.isEmpty()")
@@ -157,6 +161,7 @@ public class CountryStateServiceImpl extends AbstractService<CountryState, Long>
 
     private CountryState getStateFromStatesAndDate(String name, ProcessedDate processedDate, List<CountryState> states) {
         int confirmed = 0, deaths = 0, recovered = 0;
+        if (states.size() == 1) return states.get(0);
         for (CountryState countryState : states) {
             confirmed += countryState.getConfirmedCases();
             deaths += countryState.getDeathCases();
