@@ -16,7 +16,7 @@ import java.util.List;
 
 @RestController
 @Slf4j
-@CrossOrigin(origins = {"http://localhost:4200", "https://shimunmatic.de", "http://18.192.211.250"})
+@CrossOrigin(origins = {"http://localhost:4200", "https://shimunmatic.de", "http://18.192.211.250", "https://corona.shimunmatic.de"})
 @RequestMapping("api/countrystate")
 public class CountryStateController {
     private final CountryStateService countryStateService;
