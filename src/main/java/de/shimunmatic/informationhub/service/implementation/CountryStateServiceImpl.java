@@ -40,14 +40,13 @@ public class CountryStateServiceImpl extends AbstractService<CountryState, Long>
     private final CountryStateRepository repository;
     private final ProcessedDateService processedDateService;
     private final CacheManager cacheManager;
-    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM-dd-yyyy")
-            .withLocale(Locale.getDefault()).withZone(ZoneId.of("UTC"));
-    private static final DateTimeFormatter utcFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
-            .withLocale(Locale.getDefault()).withZone(ZoneId.of("UTC"));
+    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM-dd-yyyy").withLocale(Locale.getDefault()).withZone(ZoneId.of("UTC"));
+    private static final DateTimeFormatter utcFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss").withLocale(Locale.getDefault()).withZone(ZoneId.of("UTC"));
     private CountryStateCSVParserFactory countryStateCSVParserFactory;
 
     @Autowired
-    public CountryStateServiceImpl(CountryStateRepository repository, @Value("${information-hub.corona.api.url}") String apiUrl, RestTemplate template, ProcessedDateService processedDateService, CountryStateCSVParserFactory countryStateCSVParserFactory, CacheManager cacheManager) {
+    public CountryStateServiceImpl(CountryStateRepository repository, @Value("${information-hub.corona.api.url}") String apiUrl, RestTemplate template, ProcessedDateService processedDateService,
+                                   CountryStateCSVParserFactory countryStateCSVParserFactory, CacheManager cacheManager) {
         super(repository);
         this.apiUrl = apiUrl;
         this.template = template;
@@ -97,14 +96,8 @@ public class CountryStateServiceImpl extends AbstractService<CountryState, Long>
                 deaths += countryState.getDeathCases();
                 recovered += countryState.getRecoveredCases();
             }
-            worldState.add(CountryState.builder()
-                    .countryName("World")
-                    .processedDate(processedDate)
-                    .deathCases(deaths)
-                    .confirmedCases(confirmed)
-                    .recoveredCases(recovered)
-                    .lastUpdated(processedDate.getProcessedDate())
-                    .build());
+            worldState.add(CountryState.builder().countryName("World").processedDate(processedDate).deathCases(deaths).confirmedCases(confirmed).recoveredCases(recovered)
+                                       .lastUpdated(processedDate.getProcessedDate()).build());
         }));
         return worldState;
     }
@@ -148,7 +141,7 @@ public class CountryStateServiceImpl extends AbstractService<CountryState, Long>
         log.info("Not using cache...getAllForWorldOnDate");
         List<CountryState> states = repository.findByProcessedDateIdEquals(processedDateId);
         Optional<ProcessedDate> oDate = processedDateService.getById(processedDateId);
-        if (oDate.isEmpty()) return null;
+        if (oDate.isEmpty()) { return null; }
         return getStateFromStatesAndDate("World", oDate.get(), states);
 
     }
@@ -161,20 +154,14 @@ public class CountryStateServiceImpl extends AbstractService<CountryState, Long>
 
     private CountryState getStateFromStatesAndDate(String name, ProcessedDate processedDate, List<CountryState> states) {
         int confirmed = 0, deaths = 0, recovered = 0;
-        if (states.size() == 1) return states.get(0);
+        if (states.size() == 1) { return states.get(0); }
         for (CountryState countryState : states) {
-            confirmed += countryState.getConfirmedCases();
-            deaths += countryState.getDeathCases();
-            recovered += countryState.getRecoveredCases();
+            confirmed += (countryState.getConfirmedCases() != null ? countryState.getConfirmedCases() : 0.);
+            deaths += (countryState.getDeathCases() != null ? countryState.getDeathCases() : 0.);
+            recovered += (countryState.getRecoveredCases() != null ? countryState.getRecoveredCases() : 0.);
         }
-        return CountryState.builder()
-                .countryName(name)
-                .processedDate(processedDate)
-                .deathCases(deaths)
-                .confirmedCases(confirmed)
-                .recoveredCases(recovered)
-                .lastUpdated(processedDate.getProcessedDate())
-                .build();
+        return CountryState.builder().countryName(name).processedDate(processedDate).deathCases(deaths).confirmedCases(confirmed).recoveredCases(recovered)
+                           .lastUpdated(processedDate.getProcessedDate()).build();
 
     }
 
