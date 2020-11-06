@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@CrossOrigin(origins = {"http://localhost:4200", "https://shimunmatic.de"})
+@CrossOrigin(origins = {"http://localhost:4200", "https://shimunmatic.de", "http://18.192.211.250", "https://corona.shimunmatic.de"})
 @RequestMapping("api/processeddate")
 public class ProcessedDateController {
     private ProcessedDateService processedDateService;
