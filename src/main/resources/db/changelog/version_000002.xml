@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd">
+
+    <changeSet id="2" author="shimunmatic">
+
+        <createView
+                replaceIfExists="true"
+                schemaName="sc_information_hub"
+                viewName="view_net_day_before_data">
+            SELECT
+            country_name,
+            processed_date.processed_date AS date,
+            processed_date.processed_date_formatted AS date_formatted,
+            coalesce(sum(confirmed_cases) - lag(sum(confirmed_cases), 1) OVER (partition by country_name ORDER BY
+            processed_date.processed_date),0) AS confirmed_since_day_before,
+            coalesce(sum(country_state.death_cases) - lag(sum(country_state.death_cases), 1) OVER (partition by country_name ORDER BY
+            processed_date.processed_date),0) AS deaths_since_day_before
+            FROM sc_information_hub.country_state
+            left join sc_information_hub.processed_date on processed_date.id = country_state.processed_date_id
+            GROUP BY processed_date.processed_date, processed_date.processed_date_formatted, country_name
+            ORDER BY processed_date.processed_date desc,country_name;
+        </createView>
+
+
+        <comment>Added view which shows net data since day before</comment>
+    </changeSet>
+</databaseChangeLog>
