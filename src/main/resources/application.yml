@@ -1,6 +1,10 @@
 server:
   port: 8090
 spring:
+  boot:
+    admin:
+      client:
+        url: https://health-monitoring.shimunmatic.de
   liquibase:
     change-log: classpath:db/db.changelog-master.xml
     enabled: true
@@ -22,3 +26,11 @@ information-hub:
   corona:
     api:
       url: "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/%s.csv"
+management:
+  endpoint:
+    metrics:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
