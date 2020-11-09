@@ -8,7 +8,8 @@ spring:
       client:
         url: https://health-monitoring.shimunmatic.de
         instance:
-          service-url: https://api.information-hub.shimunmatic.de
+          service-base-url: https://api.information-hub.shimunmatic.de
+          management-base-url: https://api.information-hub.shimunmatic.de
   liquibase:
     change-log: classpath:db/db.changelog-master.xml
     enabled: true
