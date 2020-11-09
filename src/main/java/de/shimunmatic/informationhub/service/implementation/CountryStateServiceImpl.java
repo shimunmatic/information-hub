@@ -92,9 +92,9 @@ public class CountryStateServiceImpl extends AbstractService<CountryState, Long>
 
             int confirmed = 0, deaths = 0, recovered = 0;
             for (CountryState countryState : countryStates) {
-                confirmed += countryState.getConfirmedCases();
-                deaths += countryState.getDeathCases();
-                recovered += countryState.getRecoveredCases();
+                confirmed += (countryState.getConfirmedCases() != null ? countryState.getConfirmedCases() : 0.);
+                deaths += (countryState.getDeathCases() != null ? countryState.getDeathCases() : 0.);
+                recovered += (countryState.getRecoveredCases() != null ? countryState.getRecoveredCases() : 0.);
             }
             worldState.add(CountryState.builder().countryName("World").processedDate(processedDate).deathCases(deaths).confirmedCases(confirmed).recoveredCases(recovered)
                                        .lastUpdated(processedDate.getProcessedDate()).build());
