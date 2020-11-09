@@ -15,7 +15,7 @@ public class HomeController {
 
     @GetMapping(value = "")
     public ResponseEntity<String> getHome(){
-        return ResponseEntity.ok("Home");
+        return ResponseEntity.ok("Home Information Hub");
     }
     @GetMapping(value = "api")
     public ResponseEntity<String> getHomeApi(){
