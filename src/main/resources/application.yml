@@ -9,7 +9,7 @@ spring:
       client:
         url: https://health-monitoring.shimunmatic.de
         instance:
-          health-url: https://api.information-hub.shimunmatic.de
+          health-url: https://api.information-hub.shimunmatic.de/actuator/health
           service-url: https://api.information-hub.shimunmatic.de
           service-base-url: https://api.information-hub.shimunmatic.de
           management-base-url: https://api.information-hub.shimunmatic.de
